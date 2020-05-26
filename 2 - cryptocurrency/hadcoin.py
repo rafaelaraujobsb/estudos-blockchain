@@ -1,6 +1,5 @@
 import json
 import hashlib
-from uuid import uuid4
 from datetime import datetime
 from urllib.parse import urlparse
 
@@ -15,7 +14,7 @@ class Blockchain:
         self.__dificuldade = nivel
         self.criar_bloco(proof=1, hash_anterior='0')
 
-    def adicionar_transacao(self, remetente: str, destinatario: str, valor: float)
+    def adicionar_transacao(self, remetente: str, destinatario: str, valor: float):
         self.transacoes.append({"remetente": remetente, "destinatario": destinatario, "valor": valor})
         return self.get_blobo_anterior()["index"] + 1
 
@@ -23,37 +22,15 @@ class Blockchain:
         url_parse = urlparse(endereco)
         self.nos.add(url_parse.netloc)
 
-    def substituir_chain(self):
-        network = self.nos
-        maior_chain = None
-        tamanho_maximo = len(self.chain)
-        
-        for no in network:
-            resposta = requests.get(f"http://{no}/chain")
-
-            if resposta.status_code == 200:
-                chain = resposta.json()["chain"]
-                tamanho = resposta.json()["tamanho"]
-
-                if tamanho > tamanho_maximo and self.is_chain_valida(chain):
-                    maior_chain = chain
-                    tamanho_maximo = tamanho
-
-        if maior_chain:
-            self.chain = chain
-            resposta = True
-        else:
-            resposta = False
-
-        return resposta
-
     def criar_bloco(self, proof: int, hash_anterior: str) -> dict:
         bloco = {
             "index": len(self.chain) + 1,
             "timestamp": str(datetime.now()),
             "proof": proof,
-            "hash_anterior": hash_anterior
+            "hash_anterior": hash_anterior,
+            "transacoes": self.transacoes
         }
+        self.transacoes = []
         self.chain.append(bloco)
 
         return bloco
@@ -94,5 +71,29 @@ class Blockchain:
                     index_bloco += 1
                 else:
                     resposta = False
+
+        return resposta
+
+    def substituir_chain(self):
+        network = self.nos
+        maior_chain = None
+        tamanho_maximo = len(self.chain)
+        
+        for no in network:
+            resposta = requests.get(f"http://{no}/chain")
+
+            if resposta.status_code == 200:
+                chain = resposta.json()["chain"]
+                tamanho = resposta.json()["tamanho"]
+
+                if tamanho > tamanho_maximo and self.is_chain_valida(chain):
+                    maior_chain = chain
+                    tamanho_maximo = tamanho
+
+        if maior_chain:
+            self.chain = chain
+            resposta = True
+        else:
+            resposta = False
 
         return resposta
