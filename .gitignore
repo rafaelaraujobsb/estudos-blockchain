@@ -1,4 +1,6 @@
 .vscode
+etherwallet-v3.11.3.3
+ganache-2.4.0-linux-x86_64.AppImage
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
